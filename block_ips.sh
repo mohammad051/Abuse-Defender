@@ -11,8 +11,8 @@ update_blocked_ips() {
     return 1
   fi
 
-  # حذف قوانین قبلی مرتبط با IP ها که توسط این اسکریپت اضافه شده‌اند
-  echo "در حال حذف قوانین قبلی مرتبط با مسدودسازی..."
+  # حذف کامل زنجیره BLOCKED_IPS و قوانین مرتبط با آن
+  echo "در حال حذف کامل قوانین قبلی مرتبط با مسدودسازی..."
   iptables -D INPUT -j BLOCKED_IPS 2>/dev/null
   iptables -D OUTPUT -j BLOCKED_IPS 2>/dev/null
   iptables -F BLOCKED_IPS 2>/dev/null
@@ -43,7 +43,7 @@ update_blocked_ips() {
 # تابع برای باز کردن پورت‌های مشخص شده
 allow_ports() {
   # لیست پورت‌هایی که باید باز شوند
-  ports=(22 2053 443 8443 54879 80)
+  ports=(22 2053 443 8443 80)
 
   # فعال کردن UFW
   echo "در حال فعال‌سازی UFW..."
