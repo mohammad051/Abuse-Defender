@@ -18,7 +18,7 @@
 1. **کلون کردن مخزن گیت‌هاب**
    ابتدا این اسکریپت را از گیت‌هاب دانلود کنید:
    ```bash
-   git clone [https://github.com/username/ip-blocker.git](https://raw.githubusercontent.com/mohammad051/ipblock/refs/heads/main/block_ips.sh)
+   git clone https://raw.githubusercontent.com/mohammad051/ipblock/refs/heads/main/block_ips.sh
    cd ip-blocker
    ```
 
