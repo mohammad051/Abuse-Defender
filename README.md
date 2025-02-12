@@ -1,41 +1,52 @@
-# IP Block Script
+ip-blocker
+این اسکریپت برای مسدود کردن IP ها با استفاده از iptables از لیستی که از گیت‌هاب دریافت می‌شود طراحی شده است. همچنین، پورت‌های خاصی برای ارتباطات مجاز باز می‌شود و کرون جاب برای به‌روزرسانی خودکار تنظیم می‌شود.
 
-This script automatically fetches a list of IPs from GitHub, blocks them using `iptables`, and opens specific ports using `ufw`.
+ویژگی‌ها
+دریافت لیست IP ها از گیت‌هاب
+مسدود کردن IP های دریافت شده با استفاده از iptables
+باز کردن پورت‌های مشخص شده برای ارتباطات مجاز
+تنظیم کرون جاب برای به‌روزرسانی خودکار هر 3 روز
+پیش‌نیازها
+سیستم عامل لینوکس (Ubuntu توصیه می‌شود)
+دسترسی root یا sudo برای اجرای دستورات iptables و ufw
+نصب curl و ufw بر روی سیستم
+نصب
+کلون کردن مخزن گیت‌هاب ابتدا این اسکریپت را از گیت‌هاب دانلود کنید:
 
-## Table of Contents
-1. [Features](#features)
-2. [Prerequisites](#prerequisites)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Cron Job Setup (Optional)](#cron-job-setup-optional)
-6. [Verification](#verification)
-7. [Troubleshooting](#troubleshooting)
+bash
+Copy
+Edit
+git clone https://github.com/username/ip-blocker.git
+cd ip-blocker
+مجوزهای لازم اسکریپت باید با مجوزهای root اجرا شود تا بتواند تغییرات لازم را در iptables و ufw اعمال کند. بنابراین، قبل از اجرا، اطمینان حاصل کنید که مجوزهای لازم را دارید.
 
----
+نصب وابستگی‌ها برای نصب curl و ufw در صورتی که قبلاً نصب نشده‌اند:
 
-## Features
-- Fetches a list of IPs from a GitHub repository.
-- Blocks the fetched IPs using `iptables`.
-- Opens predefined ports (e.g., 22, 80, 443) using `ufw`.
-- Automatically updates the blocked IPs every 3 days (if cron job is set up).
+bash
+Copy
+Edit
+sudo apt-get update
+sudo apt-get install curl ufw
+اجرای اسکریپت اسکریپت را با استفاده از دستور زیر اجرا کنید:
 
----
+bash
+Copy
+Edit
+sudo bash script.sh
+تنظیم کرون جاب کرون جاب به طور خودکار تنظیم می‌شود که اسکریپت هر 3 روز یک بار اجرا شود. این کار برای به‌روزرسانی لیست IP ها و اعمال قوانین جدید است.
 
-## Prerequisites
-Before running the script, ensure the following tools are installed on your system:
-- `curl` or `wget`: To download the script.
-- `iptables`: For managing firewall rules.
-- `ufw`: For managing open ports.
+نحوه استفاده
+اسکریپت به طور خودکار لیست IP های مسدود شده را از گیت‌هاب دریافت کرده و آن‌ها را با استفاده از iptables مسدود می‌کند.
+پس از اجرای اسکریپت، پورت‌های ضروری (22, 2053, 443, 8443, 54879, 80) باز خواهند شد.
+کرون جاب برای به‌روزرسانی خودکار تنظیم خواهد شد تا هر 3 روز یک بار اسکریپت اجرا شود.
+حذف اسکریپت
+اگر خواسته باشید اسکریپت را حذف کنید و تنظیمات را برگردانید، می‌توانید با استفاده از دستورات زیر قوانین iptables و ufw را حذف کنید:
 
-You can install these tools using the following commands:
-
-#### For Ubuntu/Debian:
-```bash
-sudo apt update
-sudo apt install curl iptables ufw -y
-
-Installation
-1. Download the Script
-Download the script directly from the GitHub repository using one of the following commands:
-
-Using wget:
+bash
+Copy
+Edit
+sudo iptables -F
+sudo ufw disable
+توجه
+اطمینان حاصل کنید که این اسکریپت را تنها بر روی سیستم‌هایی که به امنیت آن‌ها اعتماد دارید، اجرا کنید.
+برای دریافت لیست جدید IP ها از گیت‌هاب، اسکریپت به اینترنت نیاز دارد.
