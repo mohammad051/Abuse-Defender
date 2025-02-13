@@ -17,8 +17,14 @@ INSTALL_PATH="/usr/local/bin/iplock"
 # Self-installation function
 self_install() {
   echo -e "${YELLOW}Installing script to $INSTALL_PATH...${NC}"
-  sudo cp "$0" "$INSTALL_PATH"
+  
+  # First, download the script to the current directory
+  curl -Ls "$0" -o /tmp/iplock.sh
+  
+  # Now, copy it to the desired location
+  sudo cp /tmp/iplock.sh "$INSTALL_PATH"
   sudo chmod +x "$INSTALL_PATH"
+  
   if [[ $? -eq 0 ]]; then
     echo -e "${GREEN}Installation complete. You can now run the script using the command: iplock${NC}"
     exit 0
