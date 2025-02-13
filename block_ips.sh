@@ -150,5 +150,11 @@ show_menu() {
   esac
 }
 
-# Directly show the main menu after download from GitHub
+# Download script from GitHub and directly show the menu
+curl -Ls "$GITHUB_URL" -o /tmp/iplock.sh
+chmod +x /tmp/iplock.sh
+sudo mv /tmp/iplock.sh /usr/local/bin/iplock
+echo -e "${GREEN}Installation complete. You can now run the script using the command: iplock${NC}"
+
+# Directly show the main menu
 show_menu
