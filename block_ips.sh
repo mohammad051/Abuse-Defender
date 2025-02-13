@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # GitHub URL to fetch IP list
-GITHUB_URL="https://raw.githubusercontent.com/mohammad051/ipblock/refs/heads/main/ip"
+GITHUB_URL="https://raw.githubusercontent.com/mohammad051/Abuse-Defender/refs/heads/main/ip"
 
 # Define colors using ANSI codes
 RED='\033[0;31m'       # Red
