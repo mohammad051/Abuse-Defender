@@ -23,29 +23,36 @@ self_install() {
   mkdir -p "$TEMP_DIR"
 
   # Download the script to the temporary directory
+  echo -e "${YELLOW}Downloading script...${NC}"
   curl -Ls "$0" -o "$TEMP_DIR/iplock.sh"
-
+  
+  # Check if the download was successful
   if [[ ! -f "$TEMP_DIR/iplock.sh" ]]; then
     echo -e "${RED}Failed to download the script. Please check your internet connection or the URL.${NC}"
     exit 1
+  else
+    echo -e "${GREEN}Script downloaded successfully!${NC}"
   fi
 
+  # Copy the script to the installation path
   echo -e "${YELLOW}Copying script to $INSTALL_PATH...${NC}"
   sudo cp "$TEMP_DIR/iplock.sh" "$INSTALL_PATH"
-
+  
+  # Check if the copy was successful
   if [[ $? -ne 0 ]]; then
     echo -e "${RED}Failed to copy the script. Please check permissions for /usr/local/bin.${NC}"
     exit 1
   fi
 
   # Make the script executable
+  echo -e "${YELLOW}Making the script executable...${NC}"
   sudo chmod +x "$INSTALL_PATH"
 
   if [[ $? -eq 0 ]]; then
     echo -e "${GREEN}Installation complete. You can now run the script using the command: iplock${NC}"
     exit 0
   else
-    echo -e "${RED}Installation failed. Please check permissions or the installation path.${NC}"
+    echo -e "${RED}Failed to make the script executable. Please check permissions or the installation path.${NC}"
     exit 1
   fi
 }
@@ -81,66 +88,6 @@ update_blocked_ips() {
   sudo iptables -A OUTPUT -j BLOCKED_IPS
 
   echo -e "${GREEN}All IPs fetched from GitHub were successfully blocked.${NC}"
-}
-
-# Function to configure UFW and open specific ports
-configure_ufw() {
-  ALLOWED_PORTS=(22 443 2053 8443 80)
-  echo -e "${YELLOW}Configuring UFW to allow specific ports...${NC}"
-
-  echo "y" | sudo ufw --force reset
-  echo "y" | sudo ufw --force enable
-
-  sudo ufw default deny incoming
-  sudo ufw default deny outgoing
-
-  for port in "${ALLOWED_PORTS[@]}"; do
-    sudo ufw allow in "$port"
-    sudo ufw allow out "$port"
-    echo -e "${GREEN}Port $port has been opened for both incoming and outgoing traffic.${NC}"
-  done
-
-  echo -e "${GREEN}All ports are closed except the allowed ones: ${ALLOWED_PORTS[*]}.${NC}"
-}
-
-# Function to open all ports
-open_all_ports() {
-  echo -e "${YELLOW}Opening all ports...${NC}"
-  echo "y" | sudo ufw --force reset
-  echo "y" | sudo ufw --force enable
-  sudo ufw default allow incoming
-  sudo ufw default allow outgoing
-  echo -e "${GREEN}All ports are now open.${NC}"
-}
-
-# Function to manually allow user-specified ports
-allow_user_ports() {
-  echo -e "${YELLOW}Enter the ports you want to allow (separated by space): ${NC}"
-  read -p "Ports: " -a user_ports
-
-  for port in "${user_ports[@]}"; do
-    if [[ "$port" =~ ^[0-9]+$ ]]; then
-      sudo ufw allow in "$port"
-      sudo ufw allow out "$port"
-      echo -e "${GREEN}Port $port has been opened for both incoming and outgoing traffic.${NC}"
-    else
-      echo -e "${RED}Invalid port: $port. Please enter numeric values only.${NC}"
-    fi
-  done
-}
-
-# Function to remove all iptables rules set by the script
-remove_iptables_rules() {
-  echo -e "${YELLOW}Removing all iptables rules set by the script...${NC}"
-  if sudo iptables -L BLOCKED_IPS -n >/dev/null 2>&1; then
-    sudo iptables -D INPUT -j BLOCKED_IPS 2>/dev/null
-    sudo iptables -D OUTPUT -j BLOCKED_IPS 2>/dev/null
-    sudo iptables -F BLOCKED_IPS 2>/dev/null
-    sudo iptables -X BLOCKED_IPS 2>/dev/null
-    echo -e "${GREEN}All iptables rules set by the script have been removed.${NC}"
-  else
-    echo -e "${CYAN}No iptables rules found to remove.${NC}"
-  fi
 }
 
 # Main menu
