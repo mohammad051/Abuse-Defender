@@ -11,6 +11,23 @@ BLUE='\033[0;34m'      # Blue
 CYAN='\033[0;36m'      # Cyan
 NC='\033[0m'           # No Color (Reset)
 
+# Path to install the script
+INSTALL_PATH="/usr/local/bin/iplock"
+
+# Self-installation function
+self_install() {
+  echo -e "${YELLOW}Installing script to $INSTALL_PATH...${NC}"
+  sudo cp "$0" "$INSTALL_PATH"
+  sudo chmod +x "$INSTALL_PATH"
+  if [[ $? -eq 0 ]]; then
+    echo -e "${GREEN}Installation complete. You can now run the script using the command: iplock${NC}"
+    exit 0
+  else
+    echo -e "${RED}Installation failed. Please check permissions or the installation path.${NC}"
+    exit 1
+  fi
+}
+
 # Function to update blocked IPs and apply changes
 update_blocked_ips() {
   echo -e "${YELLOW}Fetching IP list from GitHub...${NC}"
@@ -20,7 +37,6 @@ update_blocked_ips() {
     return 1
   fi
 
-  # Check for existing BLOCKED_IPS chain and remove it
   echo -e "${YELLOW}Removing old blocking rules...${NC}"
   if sudo iptables -L BLOCKED_IPS -n >/dev/null 2>&1; then
     sudo iptables -D INPUT -j BLOCKED_IPS 2>/dev/null
@@ -29,10 +45,8 @@ update_blocked_ips() {
     sudo iptables -X BLOCKED_IPS 2>/dev/null
   fi
 
-  # Create a new chain for blocking IPs
   sudo iptables -N BLOCKED_IPS
 
-  # Remove duplicates and block each unique IP
   unique_ips=$(echo "$ips" | tr -d '\r' | xargs -n1 | sort -u)
   while IFS= read -r ip; do
     if [[ "$ip" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$ ]]; then
@@ -41,7 +55,6 @@ update_blocked_ips() {
     fi
   done <<< "$unique_ips"
 
-  # Apply the new chain to INPUT and OUTPUT
   sudo iptables -A INPUT -j BLOCKED_IPS
   sudo iptables -A OUTPUT -j BLOCKED_IPS
 
@@ -50,22 +63,15 @@ update_blocked_ips() {
 
 # Function to configure UFW and open specific ports
 configure_ufw() {
-  # List of ports to keep open
   ALLOWED_PORTS=(22 443 2053 8443 80)
-
   echo -e "${YELLOW}Configuring UFW to allow specific ports...${NC}"
 
-  # Reset UFW to default settings
   echo "y" | sudo ufw --force reset
-
-  # Enable UFW
   echo "y" | sudo ufw --force enable
 
-  # Set default policies
   sudo ufw default deny incoming
   sudo ufw default deny outgoing
 
-  # Allow specified ports for both incoming and outgoing traffic
   for port in "${ALLOWED_PORTS[@]}"; do
     sudo ufw allow in "$port"
     sudo ufw allow out "$port"
@@ -78,18 +84,41 @@ configure_ufw() {
 # Function to open all ports
 open_all_ports() {
   echo -e "${YELLOW}Opening all ports...${NC}"
-
-  # Reset UFW to default settings
   echo "y" | sudo ufw --force reset
-
-  # Enable UFW
   echo "y" | sudo ufw --force enable
-
-  # Set policies to allow all traffic
   sudo ufw default allow incoming
   sudo ufw default allow outgoing
-
   echo -e "${GREEN}All ports are now open.${NC}"
+}
+
+# Function to manually allow user-specified ports
+allow_user_ports() {
+  echo -e "${YELLOW}Enter the ports you want to allow (separated by space): ${NC}"
+  read -p "Ports: " -a user_ports
+
+  for port in "${user_ports[@]}"; do
+    if [[ "$port" =~ ^[0-9]+$ ]]; then
+      sudo ufw allow in "$port"
+      sudo ufw allow out "$port"
+      echo -e "${GREEN}Port $port has been opened for both incoming and outgoing traffic.${NC}"
+    else
+      echo -e "${RED}Invalid port: $port. Please enter numeric values only.${NC}"
+    fi
+  done
+}
+
+# Function to remove all iptables rules set by the script
+remove_iptables_rules() {
+  echo -e "${YELLOW}Removing all iptables rules set by the script...${NC}"
+  if sudo iptables -L BLOCKED_IPS -n >/dev/null 2>&1; then
+    sudo iptables -D INPUT -j BLOCKED_IPS 2>/dev/null
+    sudo iptables -D OUTPUT -j BLOCKED_IPS 2>/dev/null
+    sudo iptables -F BLOCKED_IPS 2>/dev/null
+    sudo iptables -X BLOCKED_IPS 2>/dev/null
+    echo -e "${GREEN}All iptables rules set by the script have been removed.${NC}"
+  else
+    echo -e "${CYAN}No iptables rules found to remove.${NC}"
+  fi
 }
 
 # Main menu
@@ -101,7 +130,9 @@ show_menu() {
   echo -e "${YELLOW}1. Apply iptables rules and schedule cron job${NC}"
   echo -e "${YELLOW}2. Configure UFW and allow specific ports (22, 443, 2053, 8443, 80)${NC}"
   echo -e "${YELLOW}3. Open all ports${NC}"
-  echo -e "${YELLOW}4. Exit${NC}"
+  echo -e "${YELLOW}4. Allow custom ports manually${NC}"
+  echo -e "${YELLOW}5. Remove all iptables rules set by this script${NC}"
+  echo -e "${YELLOW}6. Exit${NC}"
   echo -e "${RED}+======================================================================+${NC}"
   read -p "$(echo -e "${YELLOW}Your choice: ${NC}")" choice
 
@@ -116,6 +147,12 @@ show_menu() {
       open_all_ports
       ;;
     4)
+      allow_user_ports
+      ;;
+    5)
+      remove_iptables_rules
+      ;;
+    6)
       echo -e "${GREEN}Exiting AbuseDefender...${NC}"
       exit 0
       ;;
@@ -127,5 +164,31 @@ show_menu() {
   esac
 }
 
-# Execute menu
-show_menu
+# Check if the script is installed
+if [[ "$0" != "$INSTALL_PATH" ]]; then
+  echo -e "${YELLOW}It looks like the script is not installed.${NC}"
+  echo -e "${CYAN}Please choose option 1 to install the script.${NC}"
+  echo -e "${RED}+======================================================================+${NC}"
+  echo -e "${RED}                          INSTALLATION MENU                          ${NC}"
+  echo -e "${RED}+======================================================================+${NC}"
+  echo -e "${YELLOW}1. Install the script${NC}"
+  echo -e "${YELLOW}2. Exit${NC}"
+  echo -e "${RED}+======================================================================+${NC}"
+  read -p "$(echo -e "${YELLOW}Your choice: ${NC}")" choice
+
+  case $choice in
+    1)
+      self_install
+      ;;
+    2)
+      echo -e "${GREEN}Exiting...${NC}"
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}Invalid option! Please try again.${NC}"
+      ;;
+  esac
+else
+  # If already installed, show the main menu
+  show_menu
+fi
