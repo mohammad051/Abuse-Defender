@@ -39,7 +39,7 @@ This script is designed to block IPs using `iptables` from a list fetched from G
 ## Usage
 
 - The script automatically fetches the blocked IPs from GitHub and blocks them using `iptables`.
-- After running the script, the necessary ports (22, 2053, 443, 8443, 54879, 80) will be opened.
+- After running the script, the necessary ports (22, 2053, 443, 8443, 80) will be opened.
 - A cron job will be set up to run the script every 3 days to automatically update the IP list.
 
 ## Uninstall
