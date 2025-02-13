@@ -11,9 +11,6 @@ BLUE='\033[0;34m'      # Blue
 CYAN='\033[0;36m'      # Cyan
 NC='\033[0m'           # No Color (Reset)
 
-# Path to install the script
-INSTALL_PATH="/usr/local/bin/iplock"
-
 # Function to update blocked IPs and apply changes
 update_blocked_ips() {
   echo -e "${YELLOW}Fetching IP list from GitHub...${NC}"
@@ -149,12 +146,6 @@ show_menu() {
       ;;
   esac
 }
-
-# Download script from GitHub and directly show the menu
-curl -Ls "$GITHUB_URL" -o /tmp/iplock.sh
-chmod +x /tmp/iplock.sh
-sudo mv /tmp/iplock.sh /usr/local/bin/iplock
-echo -e "${GREEN}Installation complete. You can now run the script using the command: iplock${NC}"
 
 # Directly show the main menu
 show_menu
