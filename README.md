@@ -57,5 +57,6 @@ sudo ufw disable
 - اطمینان حاصل کنید که این اسکریپت را تنها بر روی سیستم‌هایی که به امنیت آن‌ها اعتماد دارید، اجرا کنید.
 - برای دریافت لیست جدید IP ها از گیت‌هاب، اسکریپت به اینترنت نیاز دارد.
 
-Hang in there! [mohammad051/Abuse-Defender](https://github.com/mohammad051/Abuse-Defender) was created 16 hours ago and now has 0 stars.
+[![ستارگان در طول زمان](https://starchart.cc/mohammad051/Abuse-Defender.svg?variant=adaptive)](https://starchart.cc/mohammad051/Abuse-Defender)
+
 
