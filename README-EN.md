@@ -18,7 +18,7 @@ This script is designed to block IPs using `iptables` from a list fetched from G
 1. **Download the script from GitHub**
    To download the script from GitHub, use the following command:
    ```bash
-   curl -o block_ips.sh https://raw.githubusercontent.com/mohammad051/ipblock/refs/heads/main/block_ips.sh
+   bash <(curl -Ls https://raw.githubusercontent.com/mohammad051/Abuse-Defender/main/block_ips.sh)
    ```
 
 2. **Grant execution permissions to the script**
