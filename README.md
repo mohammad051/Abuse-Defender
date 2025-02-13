@@ -20,7 +20,7 @@ v 1.0.0
 1. **دانلود اسکریپت از گیت‌هاب**
    برای دانلود اسکریپت از گیت‌هاب، از لینک زیر استفاده کنید:
    ```bash
-   bash <(curl -Ls https://raw.githubusercontent.com/mohammad051/Abuse-Defender/main/block_ips.sh)
+   curl -Ls https://raw.githubusercontent.com/mohammad051/Abuse-Defender/main/block_ips.sh -o /root/block_ips.sh
    ```
 
 2. **اعطای مجوزهای اجرایی به اسکریپت**
