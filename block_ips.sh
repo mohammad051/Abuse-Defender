@@ -11,6 +11,18 @@ BLUE='\033[0;34m'      # Blue
 CYAN='\033[0;36m'      # Cyan
 NC='\033[0m'           # No Color (Reset)
 
+# Function to install iptables-persistent if not installed
+install_iptables_persistent() {
+  if ! dpkg -l | grep -q "iptables-persistent"; then
+    echo -e "${YELLOW}iptables-persistent not found. Installing...${NC}"
+    sudo apt update
+    sudo apt install -y iptables-persistent
+    echo -e "${GREEN}iptables-persistent has been installed.${NC}"
+  else
+    echo -e "${GREEN}iptables-persistent is already installed.${NC}"
+  fi
+}
+
 # Function to update blocked IPs and apply changes
 update_blocked_ips() {
   echo -e "${YELLOW}Fetching IP list from GitHub...${NC}"
@@ -41,7 +53,11 @@ update_blocked_ips() {
   sudo iptables -A INPUT -j BLOCKED_IPS
   sudo iptables -A OUTPUT -j BLOCKED_IPS
 
-  echo -e "${GREEN}All IPs fetched from GitHub were successfully blocked.${NC}"
+  # Save iptables rules using iptables-persistent
+  echo -e "${YELLOW}Saving iptables rules...${NC}"
+  sudo netfilter-persistent save
+
+  echo -e "${GREEN}All IPs fetched from GitHub were successfully blocked and rules saved.${NC}"
 }
 
 # Function to configure UFW and open specific ports
@@ -121,6 +137,7 @@ show_menu() {
 
   case $choice in
     1)
+      install_iptables_persistent
       update_blocked_ips
       ;;
     2)
